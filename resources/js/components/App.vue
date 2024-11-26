@@ -27,6 +27,18 @@
                 </form>
             </div>
         </div>
+        <div class="row mt-4" v-if="downloadUrl">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        The Excel output
+                    </div>
+                    <div class="card-body">
+                        Download Excel file: <a :href="downloadUrl" download>{{ downloadUrl }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 <script>
@@ -39,6 +51,7 @@ export default {
             message: '',
             messageFail: false,
             file: null,
+            downloadUrl: ''
         };
     },
     methods: {
@@ -61,7 +74,8 @@ export default {
                     },
                 });
                 this.messageFail = false;
-                this.message = `File successfully uploaded: ${response.data.path}`;
+                this.message = response.data.message;
+                this.downloadUrl = response.data.xlsxUrl;
             } catch (error) {
                 this.messageFail = true;
                 
