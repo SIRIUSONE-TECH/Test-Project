@@ -78,6 +78,7 @@ export default {
                 this.downloadUrl = response.data.xlsxUrl;
             } catch (error) {
                 this.messageFail = true;
+                this.downloadUrl = '';
                 
                 if (error.response && error.response.data && error.response.data.message) {
                     this.message = error.response.data.message;
