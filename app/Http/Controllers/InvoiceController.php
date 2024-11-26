@@ -52,46 +52,22 @@ class InvoiceController extends Controller
 
         $sheet1 = $spreadsheet->getActiveSheet();
         $sheet1->setTitle('Header Info');
+        $sheet1->getColumnDimension('A')->setWidth(40);
+        $sheet1->getColumnDimension('B')->setWidth(100);
+        $row = 1;
 
-        // ID
-        $sheet1->setCellValue('A1', 'ID');
-        $sheet1->setCellValue('B1', $data['id']);
-
-        // UUID
-        $sheet1->setCellValue('A2', 'UUID');
-        $sheet1->setCellValue('B2', $data['uuid']);
-
-        // IssueDate
-        $sheet1->setCellValue('A3', 'IssueDate');
-        $sheet1->setCellValue('B3', $data['issueDate']);
-
-        // IssueTime
-        $sheet1->setCellValue('A4', 'IssueTime');
-        $sheet1->setCellValue('B4', $data['issueTime']);
+        InvoiceController::fillSheet($sheet1, $row, $data);
 
         // Supplier info
         $sheet1->setCellValue('A5', 'Supplier');
-        $sheet1->setCellValue('A6', 'Name');
-        $sheet1->setCellValue('B6', $data['supplier']['companyName']);
+        $row++;
+        InvoiceController::fillSheet($sheet1, $row, $data['supplier']);
+    
 
-
-        $sheet1->setCellValue('A7', 'City');
-        $sheet1->setCellValue('B7', $data['supplier']['city']);
-
-        $sheet1->setCellValue('A8', 'Street');
-        $sheet1->setCellValue('B8', $data['supplier']['street']);
-
-        // Supplier info
+        // Customer info
         $sheet1->setCellValue('A9', 'Customer');
-        $sheet1->setCellValue('A10', 'Name');
-        $sheet1->setCellValue('B10', $data['customer']['companyName']);
-
-
-        $sheet1->setCellValue('A11', 'City');
-        $sheet1->setCellValue('B11', $data['customer']['city']);
-
-        $sheet1->setCellValue('A12', 'Street');
-        $sheet1->setCellValue('B12', $data['customer']['street']);
+        $row++;
+        InvoiceController::fillSheet($sheet1, $row, $data['customer']);
 
         // Next sheet
         $sheet2 = $spreadsheet->createSheet();
@@ -102,6 +78,11 @@ class InvoiceController extends Controller
         $sheet2->setCellValue("B$row", 'Name');
         $sheet2->setCellValue("C$row", 'Quantity');
         $sheet2->setCellValue("D$row", 'Price');
+        $sheet2->getColumnDimension('A')->setWidth(30);
+        $sheet2->getColumnDimension('B')->setWidth(100);
+        $sheet2->getColumnDimension('C')->setWidth(40);
+        $sheet2->getColumnDimension('D')->setWidth(40);
+        $sheet2->freezePane('A2');
         $row++;
 
         foreach ($data['lines'] as $line) {
@@ -122,6 +103,18 @@ class InvoiceController extends Controller
             'message' => 'File successfully uploaded',
             'xlsxUrl' => $xlsxUrl,
         ]);
+    }
+
+    public static function fillSheet($sheet, &$row, $map) {
+        foreach ($map as $key => $value) {
+            if (!is_string($value)) {
+                continue;
+            }
+
+            $sheet->setCellValue("A$row", ucfirst($key));
+            $sheet->setCellValue("B$row", $value);
+            ++$row;
+        }
     }
 
     /**
