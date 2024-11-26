@@ -14,7 +14,7 @@
                         <div class="card-header">Upload PDF File</div>
                         <div class="card-body">
                             <input type="file" name="file" class="form-control" @change="handleFileChange">
-                            <div class="alert alert-info mt-4" v-if="message">
+                            <div class="alert mt-4" :class="{'alert-success': !messageFail, 'alert-danger': messageFail}" v-if="message">
                                 {{ message }}
                             </div>
                         </div>
@@ -37,6 +37,7 @@ export default {
         return {
             isUploading: false,
             message: '',
+            messageFail: false,
             file: null,
         };
     },
@@ -59,9 +60,17 @@ export default {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
+                this.messageFail = false;
                 this.message = `File successfully uploaded: ${response.data.path}`;
             } catch (error) {
-                this.message = 'File was not loaded';
+                this.messageFail = true;
+                
+                if (error.response && error.response.data && error.response.data.message) {
+                    this.message = error.response.data.message;
+                } else {
+                    this.message = 'File was not loaded';
+                }
+
                 console.error(error);
             }
         }
